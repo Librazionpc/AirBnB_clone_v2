@@ -2,10 +2,7 @@
 #Seetting up my server
 
 sudo apt-get update
-
-if ! dpkg -s nginx >/dev/null 2>&1; then
-        sudo apt-get install -y nginx
-fi
+sudo apt-get install -y nginx
 
 sudo mkdir -p /data/
 sudo chown -R "ubuntu":"ubuntu" /data/
