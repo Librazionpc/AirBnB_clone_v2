@@ -10,12 +10,12 @@ env.hosts = ['54.237.43.71', '52.87.222.69']
 def do_pack():
     """Fabric scripts that generates a .tgz
     """
-    if not path.exists("versions"):
+    if not exists("versions"):
         local("sudo mkdir -p versions")
 
     date = datetime.now().strftime("%Y%m%d%H%M%S")
     try:
-        
+
         filename = "versions/web_static_{}.tgz".format(date)
         result = local("sudo tar -cvzf {} web_static".format(filename))
 
@@ -25,6 +25,7 @@ def do_pack():
             return None
     except Exception:
         return None
+
 
 def do_deploy(archive_path):
     """Function that deal with the deloyment it self and
