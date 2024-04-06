@@ -4,26 +4,27 @@
 from os.path import exists
 from datetime import datetime
 from fabric.api import *
-
 env.hosts = ['54.237.43.71', '52.87.222.69']
 
 
 def do_pack():
     """Fabric scripts that generates a .tgz
     """
-    if not exists("versions"):
-        if local("sudo mkdir -p versions").failed is True:
-            return None
+    if not path.exists("versions"):
+        local("sudo mkdir -p versions")
 
     date = datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = "versions/web_static_{}.tgz".format(date)
-    result = local("sudo tar -cvzf {} web_static".format(filename))
+    try:
+        
+        filename = "versions/web_static_{}.tgz".format(date)
+        result = local("sudo tar -cvzf {} web_static".format(filename))
 
-    if result.succeeded:
-        return filename
-    else:
+        if result.succeeded:
+            return filename
+        else:
+            return None
+    except Exception:
         return None
-
 
 def do_deploy(archive_path):
     """Function that deal with the deloyment it self and
@@ -33,27 +34,21 @@ def do_deploy(archive_path):
     if exists(archive_path) is False:
         return False
     filename = archive_path.split("/")[-1]
+    name = '/data/web_static/releases/' + "{}".format(filename.split(".")[0])
+    tmp = '/tmp/' + filename
     try:
-        if put(archive_path, "/tmp/").failed is True:
-            return False
-        archive_filename = path.basename(archive_path)
-        release_folder = "/data/web_static/releases/{}".format(
-                archive_filename[:-4])
-        if run("sudo mkdir -p {}".format(release_folder)).failed is True:
-            return False
-        if run("sudo tar -xzf /tmp/{} -C {}".format(
-                archive_filename, release_folder)).failed is True:
-            return False
-        if run("sudo rm -rf /tmp/{}".format(archive_filename)).failed is True:
-            return False
-        if run("sudo rm -rf /data/web_static/current").failed is True:
-            return False
-        if run("sudo ln -s {} /data/web-static/current".format(
-                release_folder)).failed is True:
-            return False
+        put(archive_path, '/tmp/')
+        run("mkdir -p {}/".format(name))
+        print(name)
+        run("tar -xzf {} -C {}/".format(tmp, name))
+        run("rm -r {}".format(tmp))
+        run("mv {}/web_static/* {}/".format(name, name))
+        run("rm -rf {}/web_static".format(name))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {}/ /data/web_static/current".format(name))
 
         return True
-    except Exception:
+    except Exception as e:
         return False
 
 
