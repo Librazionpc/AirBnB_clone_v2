@@ -8,7 +8,7 @@ if ! dpkg -s nginx >/dev/null 2>&1; then
 fi
 
 sudo mkdir -p /data/
-sudo chown "$USER":"$USER" /data/
+sudo chown -R "ubuntu":"ubuntu" /data/
 sudo chmod  -R 777 /data/
 
 sudo mkdir -p /data/web_static/releases/
