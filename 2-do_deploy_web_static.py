@@ -15,20 +15,22 @@ def do_deploy(archive_path):
     """
 
     if exists(archive_path) is False:
+        
         return False
     filename = archive_path.split("/")[-1]
+    name = '/data/web_static/releases/' + "{}".format(filename.split(".")[0])
+    tmp = '/tmp/' + filename
     try:
-        put(archive_path, "/tmp/")
-        archive_filename = path.basename(archive_path)
-        release_folder = "/data/web_static/releases/{}".format(
-                archive_filename[:-4])
-        run("sudo mkdir -p {}".format(release_folder))
-        run("sudo tar -xzf /tmp/{} -C {}".format(archive_filename,
-            release_folder))
-        run("sudo rm -rf /tmp/{}".format(archive_filename))
-        run("sudo rm -rf /data/web_static/current")
-        run("sudo ln -s {} /data/web_static/current".format(release_folder))
+        put(archive_path, '/tmp/')
+        run("mkdir -p {}/".format(name))
+        print(name)
+        run("tar -xzf {} -C {}/".format(tmp, name))
+        run("rm -r {}".format(tmp))
+        run("mv {}/web_static/* {}/".format(name, name))
+        run("rm -rf {}/web_static".format(name))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {}/ /data/web_static/current".format(name))
 
         return True
-    except Exception:
+    except Exception as e:
         return False
