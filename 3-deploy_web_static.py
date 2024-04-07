@@ -11,7 +11,7 @@ def do_pack():
     """Fabric scripts that generates a .tgz
     """
     if not exists("versions"):
-        local("sudo mkdir -p versions")
+        local("mkdir -p versions")
 
     date = datetime.now().strftime("%Y%m%d%H%M%S")
     try:
@@ -40,7 +40,6 @@ def do_deploy(archive_path):
     try:
         put(archive_path, '/tmp/')
         run("mkdir -p {}/".format(name))
-        print(name)
         run("tar -xzf {} -C {}/".format(tmp, name))
         run("rm -r {}".format(tmp))
         run("mv {}/web_static/* {}/".format(name, name))
@@ -55,7 +54,12 @@ def do_deploy(archive_path):
 
 def deploy():
     """Creates and and share the archived file to a web server"""
-    file = do_pack()
-    if file is None:
+    try:
+        
+        file = do_pack()
+        if file is None:
+            return False
+        return do_deploy(file)
+    except Exception as e:
+        print(e)
         return False
-    return do_deploy(file)
